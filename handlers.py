@@ -14,6 +14,7 @@ def add_expense(args):
         "date": datetime.now().strftime("%Y-%m-%d"),
         "description": args.description,
         "amount": args.amount,
+        "category": args.category
     }
 
     expenses.append(expense)
@@ -22,21 +23,30 @@ def add_expense(args):
 
 
 def list_expenses(args):
-    """Handle the 'list' command."""
+    """Handle the 'list' command, with optional
+    --category filter"""
     expenses = load_expenses()
+
+    if args.category is not None:
+        expenses = [
+            e for e in expenses
+            if e.get("category", "Uncategorized").lower() == args.category.lower()
+        ]
 
     if not expenses:
         print("No expenses found.")
         return
 
-    print(f"{'ID':<4} {'Date':<12} {'Description':<20} {'Amount':>9}")
-    print("-" * 48)
+    print(f"{'ID':<4} {'Date':<12} {'Description':<20} {'Category':<15} {'Amount':>9}")
+    print("-" * 64)
 
     for e in expenses:
+        category = e.get("category", "Uncategorized")
         print(
             f"{e['id']:<4} "
             f"{e['date']:<12} "
             f"{e['description']:<20} "
+            f"{category:<15} "
             f"${e['amount']:>8.2f}"
         )
 

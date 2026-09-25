@@ -25,10 +25,19 @@ def main():
         required=True,
         help="Amount (positive number)",
     )
+    add_parser.add_argument(
+        "--category",
+        default="Uncategorized",
+        help="Category (default: Uncategorized)",
+    )
     add_parser.set_defaults(func=add_expense)
 
     # ---- list ----
     list_parser = subparsers.add_parser("list", help="List all expenses")
+    list_parser.add_argument(
+        "--category",
+        help="Filter to a single category (case-insensitive)"
+    )
     list_parser.set_defaults(func=list_expenses)
 
     # ---- update ----
