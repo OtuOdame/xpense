@@ -1,6 +1,36 @@
 from datetime import datetime
 
-from storage import load_expenses, save_expenses
+from storage import load_expenses, save_expenses, load_budgets, save_budgets
+
+
+def _month_total(expenses, month, year):
+    """Sum amounts for a given month/year. Internal helper."""
+    total = 0.0
+    for e in expenses:
+        d = datetime.strptime(e["date"], "%Y-%m-%d")
+        if d.month == month and d.year == year:
+            total += e["amount"]
+    return total
+
+def _check_budget_warning(expenses):
+    """Print a warning if the current month's total exceeds its budget"""
+    now = datetime.now()
+    budgets = load_budgets()
+    budget = budgets.get(str(now.month))
+
+    if budget is None:
+        return # no budget configured for this month - nothing to check
+
+    total = _month_total(expenses, now.month, now.year)
+    if total > budget:
+        month_name = now.strftime("%B")
+        over = total - budget
+        print(
+            f"Warning: You've exceeded your {month_name} budget "
+            f"of ${budget:.2f}"
+            f"(spent ${total:.2f}, over by ${over:.2f})"
+        )
+
 
 
 def add_expense(args):
@@ -20,6 +50,8 @@ def add_expense(args):
     expenses.append(expense)
     save_expenses(expenses)
     print(f"Expense added successfully (ID: {new_id})")
+
+    _check_budget_warning(expenses)
 
 
 def list_expenses(args):
@@ -96,12 +128,30 @@ def summary(args):
         return
 
     now = datetime.now()
-    total = 0.0
-
-    for e in expenses:
-        d = datetime.strptime(e["date"], "%Y-%m-%d")
-        if d.month == args.month and d.year == now.year:
-            total += e["amount"]
+    total = _month_total(expenses, args.month, now.year)
 
     month_name = datetime(now.year, args.month, 1).strftime("%B")
     print(f"Total expenses for {month_name}: ${total:.2f}")
+
+    budgets = load_budgets()
+    budget = budgets.get(str(args.month))
+    if budget is None:
+        return
+
+    print(f"Budget for {month_name}: ${budget:.2f}")
+    if total > budget:
+        over = total - budget
+        print(f"Warning: You are ${over:.2f} over budget")
+    else:
+        remaining = budget - total
+        print(f"Remaining: ${remaining:.2f}")
+
+
+def set_budget(args):
+    """Handle the 'set-budget' command"""
+    budgets = load_budgets()
+    budgets[str(args.month)] = args.amount
+    save_budgets(budgets)
+
+    month_name = datetime(datetime.now().year, args.month, 1).strftime("%B")
+    print(f"Budget for {month_name} set to ${args.amount:.2f}")

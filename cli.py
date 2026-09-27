@@ -6,6 +6,7 @@ from handlers import (
     update_expense,
     delete_expense,
     summary,
+    set_budget,
 )
 from validators import positive_float
 
@@ -61,6 +62,25 @@ def main():
         help="Filter by month (1-12), current year only",
     )
     summary_parser.set_defaults(func=summary)
+
+    # ---- set-budget ----
+    set_budget_parser = subparsers.add_parser(
+        "set-budget", help="Set a budget for a month"
+    )
+    set_budget_parser.add_argument(
+        "--month",
+        type=int,
+        choices=range(1, 13),
+        required=True,
+        help="Month number (1-12)",
+    )
+    set_budget_parser.add_argument(
+        "--amount",
+        type=positive_float,
+        required=True,
+        help="Budget amount (positive number)",
+    )
+    set_budget_parser.set_defaults(func=set_budget)
 
     # ---- run ----
     args = parser.parse_args()
