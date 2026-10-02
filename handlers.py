@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from storage import load_expenses, save_expenses, load_budgets, save_budgets
+from storage import load_expenses, save_expenses, load_budgets, save_budgets, export_to_csv
 
 
 def _month_total(expenses, month, year):
@@ -155,3 +155,15 @@ def set_budget(args):
 
     month_name = datetime(datetime.now().year, args.month, 1).strftime("%B")
     print(f"Budget for {month_name} set to ${args.amount:.2f}")
+
+
+def export_expenses(args):
+    """Handle the 'export' command."""
+    expenses = load_expenses()
+
+    if not expenses:
+        print("No expenses to export.")
+        return
+
+    count = export_to_csv(expenses, args.file)
+    print(f"Exported {count} expense(s) to {args.file}")

@@ -7,6 +7,7 @@ from handlers import (
     delete_expense,
     summary,
     set_budget,
+    export_expenses,
 )
 from validators import positive_float
 
@@ -81,6 +82,17 @@ def main():
         help="Budget amount (positive number)",
     )
     set_budget_parser.set_defaults(func=set_budget)
+
+    # --- export ---
+    export_parser = subparsers.add_parser(
+        "export", help="Export expenses to a CSV file"
+    )
+    export_parser.add_argument(
+        "--file",
+        default="expenses.csv",
+        help="Output path (default: expenses.csv)"
+    )
+    export_parser.set_defaults(func=export_expenses)
 
     # ---- run ----
     args = parser.parse_args()
