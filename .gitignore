@@ -1,0 +1,7 @@
+# Python caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# CSV exports
+*.csv
