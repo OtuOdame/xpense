@@ -5,3 +5,7 @@ __pycache__/
 
 # CSV exports
 *.csv
+
+# Local data files
+expenses.json
+budgets.json
