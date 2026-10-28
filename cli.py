@@ -11,8 +11,8 @@ from handlers import (
 )
 from validators import positive_float
 
-
-def main():
+def build_parser():
+    """Create and return the configured argument parser."""
     parser = argparse.ArgumentParser(description="Expense Tracker")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
@@ -38,7 +38,7 @@ def main():
     list_parser = subparsers.add_parser("list", help="List all expenses")
     list_parser.add_argument(
         "--category",
-        help="Filter to a single category (case-insensitive)"
+        help="Filter to a single category (case-insensitive)",
     )
     list_parser.set_defaults(func=list_expenses)
 
@@ -90,10 +90,15 @@ def main():
     export_parser.add_argument(
         "--file",
         default="expenses.csv",
-        help="Output path (default: expenses.csv)"
+        help="Output path (default: expenses.csv)",
     )
     export_parser.set_defaults(func=export_expenses)
 
-    # ---- run ----
+    return parser
+
+
+
+def main():
+    parser = build_parser()
     args = parser.parse_args()
     args.func(args)
